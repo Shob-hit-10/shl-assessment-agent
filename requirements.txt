@@ -3,6 +3,5 @@ uvicorn
 pydantic
 python-dotenv
 google-generativeai
-sentence-transformers
 scikit-learn
 numpy
