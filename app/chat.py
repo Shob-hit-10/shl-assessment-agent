@@ -105,20 +105,31 @@ Conversation:
                 items.append(item)
 
         if len(items) < 2:
-            query = " ".join(names)
-            items = self.retriever.search(query, top_k=2)
+            return {
+                "reply": "I can compare SHL assessments, but I need two assessment names from the catalog.",
+                "recommendations": [],
+                "end_of_conversation": False
+            }
 
-        catalog_context = json.dumps(items, indent=2)
+        a, b = items[0], items[1]
 
-        prompt = f"""
-Compare these SHL assessments using ONLY the catalog data below.
-Do not use outside knowledge.
-Keep answer concise.
+        reply = f"""
+    Here is a catalog-grounded comparison:
 
-Catalog:
-{catalog_context}
-"""
-        reply = self.llm.generate_text(prompt)
+    {a.get("name", "")}:
+    - Type: {self.get_test_type(a)}
+    - Category: {", ".join(a.get("keys", []))}
+    - Duration: {a.get("duration", "Not specified")}
+    - Job levels: {", ".join(a.get("job_levels", []))}
+    - Description: {a.get("description", "")}
+
+    {b.get("name", "")}:
+    - Type: {self.get_test_type(b)}
+    - Category: {", ".join(b.get("keys", []))}
+    - Duration: {b.get("duration", "Not specified")}
+    - Job levels: {", ".join(b.get("job_levels", []))}
+    - Description: {b.get("description", "")}
+    """.strip()
 
         return {
             "reply": reply,
